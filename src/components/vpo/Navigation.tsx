@@ -1,28 +1,28 @@
 const Navigation = () => {
   return (
-    <nav className="fixed top-10 left-0 right-0 z-40 px-8 py-6 flex items-start justify-between">
+    <nav className="fixed top-8 left-0 right-0 z-40 px-6 md:px-10 py-4 flex items-start justify-between">
       {/* Logo */}
       <div className="flex flex-col">
-        <span className="text-2xl font-serif font-medium tracking-tight text-foreground">VPO.</span>
-        <span className="text-xs tracking-[0.2em] text-muted-foreground mt-1">EST. 2024</span>
+        <span className="text-xl md:text-2xl font-serif font-semibold tracking-tight text-foreground">VPO.</span>
+        <span className="text-[10px] tracking-[0.25em] text-foreground/50 mt-0.5 font-sans">EST. 2024</span>
       </div>
 
       {/* Right Nav */}
-      <div className="flex flex-col items-end gap-3">
-        <div className="flex items-center gap-10">
+      <div className="flex flex-col items-end gap-2">
+        <div className="flex items-center gap-6 md:gap-10">
           {["Editorial", "Runway", "Spaces", "Account"].map((item) => (
             <a
               key={item}
               href="#"
-              className="text-sm font-sans text-foreground/90 hover:text-foreground transition-colors tracking-wide"
+              className="text-sm font-sans text-foreground/80 hover:text-foreground transition-colors tracking-wide"
             >
               {item}
             </a>
           ))}
         </div>
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span>Secure Connection</span>
-          <span className="w-2 h-2 rounded-full bg-vpo-secure animate-pulse" />
+        <div className="flex items-center gap-2 text-[11px] text-foreground/50">
+          <span className="tracking-wide">Secure Connection</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-vpo-secure" />
         </div>
       </div>
     </nav>
