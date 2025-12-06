@@ -184,32 +184,43 @@ const FrameSequence = () => {
         )}
       </div>
 
-      {/* Hero title overlay */}
-      <section className="relative min-h-screen bg-background grain-overlay flex items-center justify-center overflow-hidden">
-        {/* Large typography background */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
+      {/* Hero title overlay - vintage textured background */}
+      <section className="relative min-h-screen bg-vpo-grain grain-overlay flex items-center justify-center overflow-hidden">
+        {/* Large overlapping editorial typography */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none px-8">
           <div className="relative">
-            <h1 className="text-[15vw] font-serif font-light leading-none text-foreground tracking-tighter">
+            {/* VIRTUAL - large sans-serif uppercase */}
+            <h1 className="text-[18vw] md:text-[16vw] font-sans font-bold leading-[0.85] text-foreground tracking-[-0.02em] uppercase">
               VIRTUAL
             </h1>
-            <h1 className="text-[12vw] font-serif italic font-light leading-none text-foreground -mt-[3vw] ml-[10vw]">
+            {/* Premium - italic serif, overlapping upward into VIRTUAL */}
+            <h1 className="text-[14vw] md:text-[12vw] font-serif italic font-light leading-[0.9] text-foreground -mt-[8vw] md:-mt-[6vw] ml-[12vw] md:ml-[15vw]">
               Premium
             </h1>
-            <h1 className="text-[15vw] font-serif font-light leading-none text-foreground/20 tracking-tighter -mt-[2vw]">
+            {/* OUTLETS - ghost text, overlapping below */}
+            <h1 className="text-[18vw] md:text-[16vw] font-sans font-bold leading-[0.85] text-foreground/15 tracking-[-0.02em] uppercase -mt-[4vw] md:-mt-[3vw]">
               OUTLETS
             </h1>
           </div>
         </div>
 
         {/* Small editorial caption - bottom right */}
-        <div className="absolute bottom-12 right-12 max-w-xs border-l border-border/40 pl-6">
-          <div className="flex items-center gap-2 mb-4">
-            <span className="w-2 h-2 rounded-full bg-foreground" />
-            <span className="text-xs tracking-[0.2em] text-muted-foreground font-sans">VOLUME 01: THE AVENUE</span>
+        <div className="absolute bottom-8 right-8 md:bottom-12 md:right-12 max-w-sm bg-vpo-grain/90 backdrop-blur-sm border-l border-border/30 pl-5 py-4">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="w-1.5 h-1.5 rounded-full bg-foreground" />
+            <span className="text-[10px] tracking-[0.25em] text-muted-foreground font-sans uppercase">Volume 01: The Avenue</span>
           </div>
-          <p className="text-base font-serif text-foreground/80 leading-relaxed">
+          <p className="text-sm md:text-base font-serif text-foreground/80 leading-relaxed">
             Where the tangible weight of luxury meets the boundless nature of the digital realm. Walk the streets.
           </p>
+          <div className="flex items-center justify-between mt-4 pt-4 border-t border-border/20">
+            <span className="text-xs tracking-[0.15em] text-muted-foreground font-sans">READ MORE</span>
+            <div className="w-8 h-8 rounded-full border border-foreground/80 flex items-center justify-center">
+              <svg className="w-3 h-3 text-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+          </div>
         </div>
       </section>
     </>
