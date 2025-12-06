@@ -161,6 +161,21 @@ const FrameSequence = () => {
               {loadLog.length === 0 && <p className="text-muted-foreground/50">Starting...</p>}
             </div>
           </div>
+        ) : images.length === 0 ? (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
+            <p className="font-mono text-lg text-red-500">No frames loaded</p>
+            <p className="font-mono text-sm text-muted-foreground max-w-md text-center">
+              CORS error: The external server doesn't allow cross-origin image loading.
+            </p>
+            <div className="mt-4 w-80 h-48 overflow-y-auto rounded bg-muted/30 p-3 font-mono text-xs text-muted-foreground">
+              <p className="text-foreground/80 mb-2">Debug Log:</p>
+              {loadLog.map((log, i) => (
+                <p key={i} className={log.startsWith("✓") ? "text-green-500" : "text-red-500"}>
+                  {log}
+                </p>
+              ))}
+            </div>
+          </div>
         ) : (
           <canvas
             ref={canvasRef}
