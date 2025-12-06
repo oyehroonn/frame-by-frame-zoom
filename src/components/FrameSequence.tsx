@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import vpoHeroBg from "@/assets/vpo-hero-bg.jpeg";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -184,28 +185,15 @@ const FrameSequence = () => {
         )}
       </div>
 
-      {/* Hero title overlay - vintage textured background */}
-      <section className="relative min-h-screen bg-vpo-grain grain-overlay flex items-center justify-center overflow-hidden">
-        {/* Large overlapping editorial typography - centered */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
-          <div className="relative flex flex-col items-start">
-            {/* VIRTUAL - large white bold sans-serif */}
-            <h1 className="text-[22vw] md:text-[18vw] lg:text-[16vw] font-sans font-bold leading-[0.8] text-foreground tracking-[-0.03em] uppercase">
-              VIRTUAL
-            </h1>
-            {/* Premium - italic serif, overlapping into VIRTUAL from the left */}
-            <h1 className="text-[18vw] md:text-[14vw] lg:text-[12vw] font-serif italic font-normal leading-[0.85] text-foreground/90 -mt-[12vw] md:-mt-[9vw] lg:-mt-[8vw] ml-[2vw]">
-              Premium
-            </h1>
-            {/* OUTLETS - outlined/stroke ghost text below */}
-            <h1 
-              className="text-[22vw] md:text-[18vw] lg:text-[16vw] font-sans font-bold leading-[0.8] tracking-[-0.03em] uppercase -mt-[5vw] md:-mt-[4vw] lg:-mt-[3vw] text-stroke-outline"
-            >
-              OUTLETS
-            </h1>
-          </div>
-        </div>
-      </section>
+      {/* Hero section with background image */}
+      <section 
+        className="relative min-h-screen flex items-center justify-center overflow-hidden"
+        style={{
+          backgroundImage: `url(${vpoHeroBg})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      />
     </>
   );
 };
