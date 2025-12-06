@@ -186,40 +186,23 @@ const FrameSequence = () => {
 
       {/* Hero title overlay - vintage textured background */}
       <section className="relative min-h-screen bg-vpo-grain grain-overlay flex items-center justify-center overflow-hidden">
-        {/* Large overlapping editorial typography */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none px-8">
-          <div className="relative">
-            {/* VIRTUAL - large sans-serif uppercase */}
-            <h1 className="text-[18vw] md:text-[16vw] font-sans font-bold leading-[0.85] text-foreground tracking-[-0.02em] uppercase">
+        {/* Large overlapping editorial typography - centered */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
+          <div className="relative flex flex-col items-start">
+            {/* VIRTUAL - large white bold sans-serif */}
+            <h1 className="text-[22vw] md:text-[18vw] lg:text-[16vw] font-sans font-bold leading-[0.8] text-foreground tracking-[-0.03em] uppercase">
               VIRTUAL
             </h1>
-            {/* Premium - italic serif, overlapping upward into VIRTUAL */}
-            <h1 className="text-[14vw] md:text-[12vw] font-serif italic font-light leading-[0.9] text-foreground -mt-[8vw] md:-mt-[6vw] ml-[12vw] md:ml-[15vw]">
+            {/* Premium - italic serif, overlapping into VIRTUAL from the left */}
+            <h1 className="text-[18vw] md:text-[14vw] lg:text-[12vw] font-serif italic font-normal leading-[0.85] text-foreground/90 -mt-[12vw] md:-mt-[9vw] lg:-mt-[8vw] ml-[2vw]">
               Premium
             </h1>
-            {/* OUTLETS - ghost text, overlapping below */}
-            <h1 className="text-[18vw] md:text-[16vw] font-sans font-bold leading-[0.85] text-foreground/15 tracking-[-0.02em] uppercase -mt-[4vw] md:-mt-[3vw]">
+            {/* OUTLETS - outlined/stroke ghost text below */}
+            <h1 
+              className="text-[22vw] md:text-[18vw] lg:text-[16vw] font-sans font-bold leading-[0.8] tracking-[-0.03em] uppercase -mt-[5vw] md:-mt-[4vw] lg:-mt-[3vw] text-stroke-outline"
+            >
               OUTLETS
             </h1>
-          </div>
-        </div>
-
-        {/* Small editorial caption - bottom right */}
-        <div className="absolute bottom-8 right-8 md:bottom-12 md:right-12 max-w-sm bg-vpo-grain/90 backdrop-blur-sm border-l border-border/30 pl-5 py-4">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="w-1.5 h-1.5 rounded-full bg-foreground" />
-            <span className="text-[10px] tracking-[0.25em] text-muted-foreground font-sans uppercase">Volume 01: The Avenue</span>
-          </div>
-          <p className="text-sm md:text-base font-serif text-foreground/80 leading-relaxed">
-            Where the tangible weight of luxury meets the boundless nature of the digital realm. Walk the streets.
-          </p>
-          <div className="flex items-center justify-between mt-4 pt-4 border-t border-border/20">
-            <span className="text-xs tracking-[0.15em] text-muted-foreground font-sans">READ MORE</span>
-            <div className="w-8 h-8 rounded-full border border-foreground/80 flex items-center justify-center">
-              <svg className="w-3 h-3 text-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
           </div>
         </div>
       </section>
