@@ -131,9 +131,6 @@ const Scene2Test = () => {
         pinSpacing: true,
         scrub: 0.5,
         anticipatePin: 1,
-        onUpdate: (self) => {
-          console.log(`Progress: ${Math.round(self.progress * 100)}%, Frame: ${Math.round(frameIndexRef.current.value)}`);
-        },
         onLeave: () => {
           renderFrame(images.length - 1);
         },
@@ -142,6 +139,9 @@ const Scene2Test = () => {
         },
         onEnterBack: () => {
           renderFrame(images.length - 1);
+        },
+        onRefresh: () => {
+          renderFrame(Math.round(frameIndexRef.current.value));
         },
       },
     });
@@ -156,7 +156,12 @@ const Scene2Test = () => {
 
     return () => {
       window.removeEventListener("resize", resizeCanvas);
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+      // Only kill triggers for this specific container
+      ScrollTrigger.getAll().forEach((trigger) => {
+        if (trigger.vars.trigger === container) {
+          trigger.kill();
+        }
+      });
     };
   }, [isLoading, images]);
 
