@@ -9,6 +9,14 @@ gsap.registerPlugin(ScrollTrigger);
 const TOTAL_FRAMES = 226;
 const FRAME_BASE_URL = "https://dev.heyharoon.io/frames1/samples_frames/frame";
 
+const LOADING_MESSAGES = [
+  "Curating your experience",
+  "Cleaning walkways",
+  "Taking you to premium outlets",
+  "Preparing exclusive collections",
+  "Setting the ambiance",
+];
+
 type ViewMode = 'select' | 'premium' | 'lite';
 
 const FrameSequence = () => {
@@ -17,11 +25,23 @@ const FrameSequence = () => {
   const [images, setImages] = useState<HTMLImageElement[]>([]);
   const [loadedCount, setLoadedCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [currentLoadingFrame, setCurrentLoadingFrame] = useState("");
-  const [loadLog, setLoadLog] = useState<string[]>([]);
   const [failedFrames, setFailedFrames] = useState<number[]>([]);
   const [viewMode, setViewMode] = useState<ViewMode>('select');
+  const [loadingMessage, setLoadingMessage] = useState(LOADING_MESSAGES[0]);
   const frameIndexRef = useRef({ value: 0 });
+
+  // Rotate loading messages
+  useEffect(() => {
+    if (!isLoading || viewMode !== 'premium') return;
+    
+    let index = 0;
+    const interval = setInterval(() => {
+      index = (index + 1) % LOADING_MESSAGES.length;
+      setLoadingMessage(LOADING_MESSAGES[index]);
+    }, 2500);
+    
+    return () => clearInterval(interval);
+  }, [isLoading, viewMode]);
 
   // Handle version selection
   const handleVersionSelect = (version: 'premium' | 'lite') => {
@@ -39,7 +59,6 @@ const FrameSequence = () => {
       const imageArray: (HTMLImageElement | null)[] = new Array(TOTAL_FRAMES).fill(null);
       const failed: number[] = [];
       
-      setLoadLog([`Starting to load ${TOTAL_FRAMES} frames...`]);
       console.log(`\n========== STARTING FRAME LOAD ==========`);
       console.log(`Total frames to load: ${TOTAL_FRAMES}`);
       console.log(`Base URL: ${FRAME_BASE_URL}`);
@@ -59,12 +78,10 @@ const FrameSequence = () => {
             const img = new Image();
             const frameUrl = `${FRAME_BASE_URL}${frameNum}.jpg`;
             img.crossOrigin = "anonymous";
-            setCurrentLoadingFrame(`frame${frameNum}.jpg`);
             
             img.onload = () => {
               imageArray[i] = img;
               setLoadedCount((prev) => prev + 1);
-              setLoadLog((prev) => [...prev.slice(-19), `✓ frame${frameNum}.jpg loaded successfully`]);
               console.log(`✓ Loaded frame${frameNum}.jpg`);
               resolve();
             };
@@ -73,7 +90,6 @@ const FrameSequence = () => {
               failed.push(frameNum);
               setLoadedCount((prev) => prev + 1);
               setFailedFrames((prev) => [...prev, frameNum]);
-              setLoadLog((prev) => [...prev.slice(-19), `✗ frame${frameNum}.jpg FAILED to load`]);
               console.warn(`✗ Failed to load frame${frameNum}.jpg`);
               resolve();
             };
@@ -97,14 +113,6 @@ const FrameSequence = () => {
         console.log(`✗ Failed frames (${failed.length}): ${failed.join(', ')}`);
       }
       console.log(`=============================================\n`);
-      
-      setLoadLog((prev) => [
-        ...prev,
-        ``,
-        `========== LOADING COMPLETE ==========`,
-        `✓ Loaded: ${validImages.length}/${TOTAL_FRAMES}`,
-        failed.length > 0 ? `✗ Failed: ${failed.length} frames` : `✓ No failed frames!`,
-      ]);
     };
 
     loadImages();
@@ -218,52 +226,32 @@ const FrameSequence = () => {
         className="relative h-screen w-full overflow-hidden bg-background"
       >
         {isLoading ? (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-background">
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 bg-background">
             <div className="grain-overlay" />
             
-            <h2 className="font-display text-xl tracking-[0.3em] text-foreground mb-4">
-              LOADING PREMIUM EXPERIENCE
-            </h2>
-            
-            <div className="relative h-1 w-64 overflow-hidden rounded-full bg-muted">
-              <div
-                className="absolute inset-y-0 left-0 bg-foreground transition-all duration-150 ease-out"
-                style={{ width: `${loadingProgress}%` }}
-              />
+            {/* Spinning loader */}
+            <div className="relative w-16 h-16">
+              <div className="absolute inset-0 rounded-full border-2 border-muted" />
+              <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-foreground animate-spin" />
             </div>
-            <p className="font-mono text-sm text-muted-foreground">
-              Loading frames... {loadedCount}/{TOTAL_FRAMES} ({loadingProgress}%)
-            </p>
-            <p className="font-mono text-xs text-muted-foreground/60">
-              Current: {currentLoadingFrame}
+            
+            {/* Rotating premium message */}
+            <p className="font-display text-lg tracking-[0.2em] text-foreground/90 transition-opacity duration-500">
+              {loadingMessage}
             </p>
             
-            {/* Frame loading log */}
-            <div className="mt-4 w-[500px] max-w-[90vw] h-72 overflow-y-auto rounded border border-foreground/10 bg-muted/20 p-4 font-mono text-xs">
-              <p className="text-foreground/80 mb-3 font-semibold tracking-wider">FRAME LOADING LOG:</p>
-              <div className="space-y-1">
-                {loadLog.map((log, i) => (
-                  <p 
-                    key={i} 
-                    className={
-                      log.startsWith("✓") ? "text-green-500" : 
-                      log.startsWith("✗") ? "text-red-500" : 
-                      log.includes("===") ? "text-foreground/60 font-semibold mt-2" :
-                      "text-muted-foreground"
-                    }
-                  >
-                    {log}
-                  </p>
-                ))}
-                {loadLog.length === 0 && <p className="text-muted-foreground/50">Initializing...</p>}
+            {/* Progress bar */}
+            <div className="flex flex-col items-center gap-2">
+              <div className="relative h-[2px] w-48 overflow-hidden bg-muted">
+                <div
+                  className="absolute inset-y-0 left-0 bg-foreground/70 transition-all duration-150 ease-out"
+                  style={{ width: `${loadingProgress}%` }}
+                />
               </div>
-            </div>
-            
-            {failedFrames.length > 0 && (
-              <p className="font-mono text-xs text-red-400 mt-2">
-                ✗ Failed frames: {failedFrames.length} (will be skipped)
+              <p className="font-mono text-xs text-muted-foreground/60 tracking-wider">
+                {loadingProgress}%
               </p>
-            )}
+            </div>
           </div>
         ) : images.length === 0 ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-background">
