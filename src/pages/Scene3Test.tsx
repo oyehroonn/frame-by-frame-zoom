@@ -4,7 +4,9 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const TOTAL_FRAMES = 240;
+const START_FRAME = 11;
+const END_FRAME = 240;
+const TOTAL_FRAMES = END_FRAME - START_FRAME + 1;
 const FRAME_BASE_URL = "https://dev.heyharoon.io/scene3/samples_frames/frame";
 
 const Scene3Test = () => {
@@ -21,7 +23,7 @@ const Scene3Test = () => {
       const imageArray: (HTMLImageElement | null)[] = new Array(TOTAL_FRAMES).fill(null);
       
       console.log(`\n========== SCENE 3: STARTING FRAME LOAD ==========`);
-      console.log(`Total frames to load: ${TOTAL_FRAMES}`);
+      console.log(`Total frames to load: ${TOTAL_FRAMES} (frame${START_FRAME} to frame${END_FRAME})`);
       console.log(`Base URL: ${FRAME_BASE_URL}`);
       
       const BATCH_SIZE = 15;
@@ -32,7 +34,7 @@ const Scene3Test = () => {
         const endIdx = Math.min(startIdx + BATCH_SIZE, TOTAL_FRAMES);
         
         for (let i = startIdx; i < endIdx; i++) {
-          const frameNum = i + 1;
+          const frameNum = START_FRAME + i;
           const promise = new Promise<void>((resolve) => {
             const img = new Image();
             const frameUrl = `${FRAME_BASE_URL}${frameNum}.jpg`;
