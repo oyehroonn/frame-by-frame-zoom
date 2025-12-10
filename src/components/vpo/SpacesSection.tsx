@@ -1,4 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface BrandWaypoint {
   id: string;
@@ -14,11 +18,77 @@ const brandWaypoints: BrandWaypoint[] = [
 
 const SpacesSection = () => {
   const [hoveredBrand, setHoveredBrand] = useState<string | null>(null);
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const visualRef = useRef<HTMLDivElement>(null);
+  const badgeRef = useRef<HTMLDivElement>(null);
+  const waypointRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    const visual = visualRef.current;
+    const badge = badgeRef.current;
+
+    if (!section || !visual || !badge) return;
+
+    const ctx = gsap.context(() => {
+      // Badge fade in
+      gsap.set(badge, { opacity: 0, y: -20 });
+      gsap.to(badge, {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: "power2.out",
+        scrollTrigger: {
+          trigger: section,
+          start: "top 80%",
+          toggleActions: "play none none reverse",
+        },
+      });
+
+      // Parallax on the visual background - moves slower than scroll
+      gsap.to(visual, {
+        yPercent: -20,
+        ease: "none",
+        scrollTrigger: {
+          trigger: section,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: true,
+        },
+      });
+
+      // Animate waypoints with stagger
+      waypointRefs.current.forEach((waypoint, index) => {
+        if (!waypoint) return;
+        
+        gsap.set(waypoint, { opacity: 0, y: 30, scale: 0.9 });
+        gsap.to(waypoint, {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.8,
+          delay: index * 0.2,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: section,
+            start: "top 60%",
+            toggleActions: "play none none reverse",
+          },
+        });
+      });
+
+    }, section);
+
+    return () => ctx.revert();
+  }, []);
 
   return (
-    <section className="relative min-h-screen">
+    <section ref={sectionRef} className="relative min-h-screen overflow-hidden">
       {/* Location badge */}
-      <div className="absolute top-8 left-8 z-20 flex items-center gap-2 bg-secondary/80 backdrop-blur-sm rounded-full px-4 py-2">
+      <div 
+        ref={badgeRef}
+        className="absolute top-8 left-8 z-20 flex items-center gap-2 bg-secondary/80 backdrop-blur-sm rounded-full px-4 py-2"
+      >
         <svg className="w-4 h-4 text-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -27,7 +97,11 @@ const SpacesSection = () => {
       </div>
 
       {/* Abstract 3D-like visual background */}
-      <div className="relative w-full h-[70vh] overflow-hidden bg-gradient-to-b from-[hsl(0,0%,75%)] to-[hsl(0,0%,55%)]">
+      <div 
+        ref={visualRef}
+        className="relative w-full h-[70vh] overflow-hidden bg-gradient-to-b from-[hsl(0,0%,75%)] to-[hsl(0,0%,55%)]"
+        style={{ willChange: "transform" }}
+      >
         {/* Simulated abstract waves using CSS */}
         <div className="absolute inset-0 opacity-80">
           <svg viewBox="0 0 1440 600" className="w-full h-full" preserveAspectRatio="xMidYMid slice">
@@ -57,11 +131,12 @@ const SpacesSection = () => {
         </div>
 
         {/* Brand waypoints */}
-        {brandWaypoints.map((brand) => (
+        {brandWaypoints.map((brand, index) => (
           <div
             key={brand.id}
+            ref={(el) => (waypointRefs.current[index] = el)}
             className="absolute z-10 cursor-pointer group"
-            style={{ left: `${brand.x}%`, top: `${brand.y}%` }}
+            style={{ left: `${brand.x}%`, top: `${brand.y}%`, willChange: "transform, opacity" }}
             onMouseEnter={() => setHoveredBrand(brand.id)}
             onMouseLeave={() => setHoveredBrand(null)}
           >

@@ -174,8 +174,24 @@ const FrameSequence = () => {
         start: "top top",
         end: "+=300%",
         pin: true,
-        scrub: 1,
+        scrub: 1.5, // Smoother scrubbing
         anticipatePin: 1,
+        onLeave: () => {
+          // Lock final frame when scrolling past
+          renderFrame(images.length - 1);
+        },
+        onLeaveBack: () => {
+          // Lock first frame when scrolling back past start
+          renderFrame(0);
+        },
+        onEnterBack: () => {
+          // Re-render last frame when scrolling back into animation
+          renderFrame(Math.round(frameIndexRef.current.value));
+        },
+        onRefresh: () => {
+          // Re-render current frame during layout recalculation
+          renderFrame(Math.round(frameIndexRef.current.value));
+        },
       },
     });
 
