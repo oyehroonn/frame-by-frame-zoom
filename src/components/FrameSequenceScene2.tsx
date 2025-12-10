@@ -129,7 +129,7 @@ const FrameSequenceScene2 = () => {
         end: `+=${totalScrollDistance}`,
         pin: true,
         pinSpacing: false,
-        scrub: 0.5,
+        scrub: 1.5, // Smoother scrubbing
         anticipatePin: 1,
         onLeave: () => {
           renderFrame(images.length - 1);

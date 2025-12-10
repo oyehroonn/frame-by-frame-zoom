@@ -1,5 +1,9 @@
-import { useState } from "react";
-import { ArrowUpRight, ArrowRight, ArrowDown } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { ArrowUpRight, ArrowDown } from "lucide-react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface Brand {
   id: string;
@@ -56,13 +60,85 @@ const brands: Brand[] = [
 const CurrentSelectionSection = () => {
   const [hoveredBrand, setHoveredBrand] = useState<string | null>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const brandRowRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const curatedTextRef = useRef<HTMLDivElement>(null);
 
   const handleMouseMove = (e: React.MouseEvent) => {
     setMousePosition({ x: e.clientX, y: e.clientY });
   };
 
+  useEffect(() => {
+    const section = sectionRef.current;
+    const header = headerRef.current;
+    const curatedText = curatedTextRef.current;
+
+    if (!section || !header) return;
+
+    const ctx = gsap.context(() => {
+      // Header animation
+      gsap.set(header, { opacity: 0, y: 40 });
+      gsap.to(header, {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: "power2.out",
+        scrollTrigger: {
+          trigger: section,
+          start: "top 75%",
+          toggleActions: "play none none reverse",
+        },
+      });
+
+      // Curated text parallax
+      if (curatedText) {
+        gsap.to(curatedText, {
+          xPercent: -10,
+          ease: "none",
+          scrollTrigger: {
+            trigger: section,
+            start: "top bottom",
+            end: "bottom top",
+            scrub: true,
+          },
+        });
+      }
+
+      // Brand rows staggered animation
+      brandRowRefs.current.forEach((row, index) => {
+        if (!row) return;
+
+        gsap.set(row, { 
+          opacity: 0, 
+          x: index % 2 === 0 ? -60 : 60,
+          willChange: "transform, opacity"
+        });
+
+        gsap.to(row, {
+          opacity: 1,
+          x: 0,
+          duration: 0.8,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: row,
+            start: "top 85%",
+            toggleActions: "play none none reverse",
+          },
+        });
+      });
+
+    }, section);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <section className="bg-background grain-overlay py-24 px-8 md:px-16 relative" onMouseMove={handleMouseMove}>
+    <section 
+      ref={sectionRef}
+      className="bg-background grain-overlay py-24 px-8 md:px-16 relative overflow-hidden" 
+      onMouseMove={handleMouseMove}
+    >
       {/* Floating image on hover */}
       {hoveredBrand && (
         <div
@@ -83,7 +159,11 @@ const CurrentSelectionSection = () => {
       )}
 
       {/* Background "CURATED" text */}
-      <div className="absolute top-16 left-1/2 -translate-x-1/2 pointer-events-none select-none">
+      <div 
+        ref={curatedTextRef}
+        className="absolute top-16 left-1/2 -translate-x-1/2 pointer-events-none select-none"
+        style={{ willChange: "transform" }}
+      >
         <span className="text-[12rem] md:text-[16rem] font-serif font-light text-foreground/[0.03] tracking-wide">
           CURATED
         </span>
@@ -91,7 +171,7 @@ const CurrentSelectionSection = () => {
 
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Section header */}
-        <div className="flex items-end justify-between mb-16 border-b border-border/30 pb-8">
+        <div ref={headerRef} className="flex items-end justify-between mb-16 border-b border-border/30 pb-8">
           <div>
             <span className="text-xs tracking-[0.3em] text-muted-foreground font-sans block mb-3">
               (02) — SPACES
@@ -107,9 +187,10 @@ const CurrentSelectionSection = () => {
 
         {/* Brand list */}
         <div className="relative">
-          {brands.map((brand) => (
+          {brands.map((brand, index) => (
             <div
               key={brand.id}
+              ref={(el) => (brandRowRefs.current[index] = el)}
               className="brand-row cursor-pointer"
               onMouseEnter={() => setHoveredBrand(brand.id)}
               onMouseLeave={() => setHoveredBrand(null)}
