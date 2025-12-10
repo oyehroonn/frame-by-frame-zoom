@@ -8,7 +8,7 @@ import NotFound from "./pages/NotFound";
 import Scene2Test from "./pages/Scene2Test";
 import GalleryEditorial from "./pages/GalleryEditorial";
 import Fashion3DTest from "./pages/Fashion3DTest";
-
+import FrameSequenceTest from "./pages/FrameSequenceTest";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -22,6 +22,7 @@ const App = () => (
           <Route path="/scene2-test" element={<Scene2Test />} />
           <Route path="/gallery" element={<GalleryEditorial />} />
           <Route path="/fashion-3d-test" element={<Fashion3DTest />} />
+          <Route path="/frame-sequence-test" element={<FrameSequenceTest />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
