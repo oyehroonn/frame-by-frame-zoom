@@ -104,11 +104,12 @@ const GalleryEditorial = () => {
       {/* Horizontal divider */}
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[hsl(30_8%_75%)] to-transparent" />
 
-      {/* Section 3: Experience Left, Text Right */}
+      {/* Section 3: GLB Left, Text Right */}
       <section className="min-h-screen">
         <div className="grid grid-cols-1 lg:grid-cols-2 min-h-screen">
-          <ExperienceContainer 
-            className="h-[55vh] lg:h-auto"
+          <GLBViewer 
+            modelUrl="/models/blackdress.glb"
+            className="h-[280px] md:h-[420px] lg:h-auto"
             labelText="Private Showroom"
           />
           <div 
