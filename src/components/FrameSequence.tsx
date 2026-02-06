@@ -290,7 +290,7 @@ const FrameSequence = () => {
       {/* Hero section with background image */}
       {!isLoading && images.length > 0 && (
         <section 
-          className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#050505]"
+          className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background"
         >
           <img 
             src={vpoHeroBg} 
