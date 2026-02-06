@@ -1,8 +1,4 @@
-import { useEffect, useRef, useState } from "react";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(ScrollTrigger);
+import { useEffect, useRef, useState, useCallback } from "react";
 
 const TOTAL_FRAMES = 250;
 const FRAME_BASE_URL = "https://dev.heyharoon.io/scene2/samples_frames/frame";
@@ -13,7 +9,9 @@ const FrameSequenceScene2 = () => {
   const [images, setImages] = useState<HTMLImageElement[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadedCount, setLoadedCount] = useState(0);
-  const frameIndexRef = useRef({ value: 0 });
+  const [isHovering, setIsHovering] = useState(false);
+  const frameIndexRef = useRef(0);
+  const imagesRef = useRef<HTMLImageElement[]>([]);
 
   // Preload all images
   useEffect(() => {
@@ -22,7 +20,6 @@ const FrameSequenceScene2 = () => {
       
       console.log(`\n========== SCENE 2: STARTING FRAME LOAD ==========`);
       console.log(`Total frames to load: ${TOTAL_FRAMES}`);
-      console.log(`Base URL: ${FRAME_BASE_URL}`);
       
       const BATCH_SIZE = 15;
       
@@ -60,6 +57,7 @@ const FrameSequenceScene2 = () => {
       
       const validImages = imageArray.filter((img): img is HTMLImageElement => img !== null);
       setImages(validImages);
+      imagesRef.current = validImages;
       setIsLoading(false);
       
       console.log(`Scene 2: Loaded ${validImages.length}/${TOTAL_FRAMES} frames`);
@@ -68,7 +66,44 @@ const FrameSequenceScene2 = () => {
     loadImages();
   }, []);
 
-  // Setup GSAP animation after images load
+  const renderFrame = useCallback((index: number) => {
+    const canvas = canvasRef.current;
+    const container = containerRef.current;
+    if (!canvas || !container) return;
+    
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const imgs = imagesRef.current;
+    if (imgs.length === 0) return;
+
+    const frameIndex = Math.min(Math.max(index, 0), imgs.length - 1);
+    const img = imgs[frameIndex];
+    if (!img) return;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const imgRatio = img.width / img.height;
+    const canvasRatio = canvas.width / canvas.height;
+
+    let drawWidth, drawHeight, offsetX, offsetY;
+
+    if (canvasRatio > imgRatio) {
+      drawWidth = canvas.width;
+      drawHeight = canvas.width / imgRatio;
+      offsetX = 0;
+      offsetY = (canvas.height - drawHeight) / 2;
+    } else {
+      drawHeight = canvas.height;
+      drawWidth = canvas.height * imgRatio;
+      offsetX = (canvas.width - drawWidth) / 2;
+      offsetY = 0;
+    }
+
+    ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+  }, []);
+
+  // Setup canvas sizing
   useEffect(() => {
     if (isLoading || images.length === 0) return;
 
@@ -76,110 +111,119 @@ const FrameSequenceScene2 = () => {
     const container = containerRef.current;
     if (!canvas || !container) return;
 
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
     const resizeCanvas = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
-      renderFrame(Math.round(frameIndexRef.current.value));
-    };
-
-    const renderFrame = (index: number) => {
-      const frameIndex = Math.min(Math.max(index, 0), images.length - 1);
-      const img = images[frameIndex];
-      if (!img || !ctx) return;
-
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      const imgRatio = img.width / img.height;
-      const canvasRatio = canvas.width / canvas.height;
-
-      let drawWidth, drawHeight, offsetX, offsetY;
-
-      if (canvasRatio > imgRatio) {
-        drawWidth = canvas.width;
-        drawHeight = canvas.width / imgRatio;
-        offsetX = 0;
-        offsetY = (canvas.height - drawHeight) / 2;
-      } else {
-        drawHeight = canvas.height;
-        drawWidth = canvas.height * imgRatio;
-        offsetX = (canvas.width - drawWidth) / 2;
-        offsetY = 0;
-      }
-
-      ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+      renderFrame(frameIndexRef.current);
     };
 
     resizeCanvas();
     window.addEventListener("resize", resizeCanvas);
-
-    // Calculate scroll distance
-    const scrollPerFrame = 8;
-    const totalScrollDistance = images.length * scrollPerFrame;
-
-    // Reset frame index to 0 before setting up animation
-    frameIndexRef.current.value = 0;
-    
-    // Render first frame immediately
     renderFrame(0);
-
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: container,
-        start: "top top",
-        end: `+=${totalScrollDistance}`,
-        pin: true,
-        pinSpacing: true, // Enable pin spacing to prevent early trigger
-        scrub: 1.5,
-        anticipatePin: 1,
-        onEnter: () => {
-          // Reset to first frame when entering
-          frameIndexRef.current.value = 0;
-          renderFrame(0);
-        },
-        onLeave: () => {
-          renderFrame(images.length - 1);
-        },
-        onLeaveBack: () => {
-          frameIndexRef.current.value = 0;
-          renderFrame(0);
-        },
-        onEnterBack: () => {
-          renderFrame(images.length - 1);
-        },
-        onRefresh: () => {
-          renderFrame(Math.round(frameIndexRef.current.value));
-        },
-      },
-    });
-
-    tl.to(frameIndexRef.current, {
-      value: images.length - 1,
-      ease: "none",
-      onUpdate: () => {
-        renderFrame(Math.round(frameIndexRef.current.value));
-      },
-    });
 
     return () => {
       window.removeEventListener("resize", resizeCanvas);
-      ScrollTrigger.getAll().forEach((trigger) => {
-        if (trigger.vars.trigger === container) {
-          trigger.kill();
-        }
-      });
     };
-  }, [isLoading, images]);
+  }, [isLoading, images, renderFrame]);
+
+  // Wheel event handler - only active when hovering
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container || isLoading || images.length === 0) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      if (!isHovering) return;
+      
+      const delta = e.deltaY;
+      const currentFrame = frameIndexRef.current;
+      const maxFrame = images.length - 1;
+      
+      // Allow normal scroll if at the end and scrolling down
+      if (currentFrame >= maxFrame && delta > 0) {
+        return;
+      }
+      
+      // Allow normal scroll if at the beginning and scrolling up
+      if (currentFrame <= 0 && delta < 0) {
+        return;
+      }
+      
+      // Otherwise, capture the scroll for animation
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const sensitivity = 0.5;
+      const frameChange = Math.sign(delta) * Math.max(1, Math.abs(delta) * sensitivity / 50);
+      
+      frameIndexRef.current = Math.min(
+        Math.max(currentFrame + frameChange, 0),
+        maxFrame
+      );
+      
+      renderFrame(Math.round(frameIndexRef.current));
+    };
+
+    container.addEventListener("wheel", handleWheel, { passive: false });
+
+    return () => {
+      container.removeEventListener("wheel", handleWheel);
+    };
+  }, [isHovering, isLoading, images, renderFrame]);
+
+  // Touch event handler for mobile
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container || isLoading || images.length === 0) return;
+
+    let lastTouchY = 0;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      lastTouchY = e.touches[0].clientY;
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      const currentTouchY = e.touches[0].clientY;
+      const delta = lastTouchY - currentTouchY;
+      lastTouchY = currentTouchY;
+      
+      const currentFrame = frameIndexRef.current;
+      const maxFrame = images.length - 1;
+      
+      // Allow normal scroll at boundaries
+      if (currentFrame >= maxFrame && delta > 0) return;
+      if (currentFrame <= 0 && delta < 0) return;
+      
+      e.preventDefault();
+      
+      const sensitivity = 0.3;
+      const frameChange = delta * sensitivity;
+      
+      frameIndexRef.current = Math.min(
+        Math.max(frameIndexRef.current + frameChange, 0),
+        maxFrame
+      );
+      
+      renderFrame(Math.round(frameIndexRef.current));
+    };
+
+    container.addEventListener("touchstart", handleTouchStart, { passive: true });
+    container.addEventListener("touchmove", handleTouchMove, { passive: false });
+
+    return () => {
+      container.removeEventListener("touchstart", handleTouchStart);
+      container.removeEventListener("touchmove", handleTouchMove);
+    };
+  }, [isLoading, images, renderFrame]);
 
   const loadingProgress = Math.round((loadedCount / TOTAL_FRAMES) * 100);
 
   return (
-    <div className="relative z-0 overflow-hidden">
+    <div className="relative z-0">
       <div
         ref={containerRef}
-        className="relative h-screen w-full overflow-hidden bg-background"
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
+        className="relative h-screen w-full overflow-hidden bg-background cursor-grab active:cursor-grabbing"
       >
         {isLoading ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-background">
@@ -201,10 +245,18 @@ const FrameSequenceScene2 = () => {
             <p className="font-mono text-sm text-muted-foreground">Scene unavailable</p>
           </div>
         ) : (
-          <canvas
-            ref={canvasRef}
-            className="absolute inset-0 h-full w-full"
-          />
+          <>
+            <canvas
+              ref={canvasRef}
+              className="absolute inset-0 h-full w-full"
+            />
+            {/* Hover indicator */}
+            <div className={`absolute bottom-8 left-1/2 -translate-x-1/2 z-20 transition-opacity duration-300 ${isHovering ? 'opacity-100' : 'opacity-0'}`}>
+              <span className="font-sans text-[10px] tracking-[0.25em] text-foreground/50 uppercase">
+                Scroll to explore
+              </span>
+            </div>
+          </>
         )}
       </div>
     </div>
