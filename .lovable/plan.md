@@ -1,59 +1,87 @@
 
 
-# Premium Slow Zoom Effect for Runway Image
+# Premium Cinematic Zoom Effect for Runway Image
 
-## Current Implementation
+## Problem Analysis
 
-The image currently has:
+The current implementation uses `ease-out` which starts the animation at full speed, then slows down. This makes the initial movement feel "instant" even though the full animation is 4 seconds. For a truly premium, sleek effect, we need:
+
+1. A custom easing curve that starts very slowly
+2. A longer duration for maximum cinematic impact
+3. Potentially using will-change for smoother GPU-accelerated rendering
+
+## Solution: Ultra-Premium Cinematic Effect
+
+### Custom Cubic-Bezier Easing
+
+Instead of `ease-out`, we'll use a custom easing curve that:
+- Starts extremely slowly (creating anticipation)
+- Gradually accelerates in the middle
+- Eases out gently at the end
+
+Recommended curve: `cubic-bezier(0.05, 0.5, 0.3, 1)` - This creates a "slow build" effect that feels luxurious and intentional.
+
+### Implementation Details
+
+**File: `src/components/vpo/RunwaySection.tsx`**
+
+Update line 58 with inline style for the custom cubic-bezier (since Tailwind doesn't support custom easing):
+
 ```jsx
-className="... group-hover:scale-105 transition-transform duration-[2s]"
+<img
+  src="https://images.unsplash.com/..."
+  alt="Runway Model"
+  className="w-full h-full object-cover opacity-80 group-hover:opacity-90 group-hover:scale-110"
+  style={{
+    transition: 'transform 5s cubic-bezier(0.05, 0.5, 0.3, 1), opacity 3s cubic-bezier(0.05, 0.5, 0.3, 1)',
+    willChange: 'transform, opacity'
+  }}
+/>
 ```
 
-This creates a 2-second zoom effect, but it still feels too fast and lacks the premium, cinematic quality you're looking for.
+**Key Changes:**
+- Transform duration: 5 seconds (for the ultra-slow zoom)
+- Opacity duration: 3 seconds (slightly faster for the fade-in)
+- Custom easing: `cubic-bezier(0.05, 0.5, 0.3, 1)` - starts at only 5% speed, accelerates gradually
+- Added `willChange: 'transform, opacity'` for GPU acceleration and smoother rendering
 
-## Proposed Changes
+### Visual Timeline
 
-### 1. Slower Duration
-Increase the transition duration from 2 seconds to **4-5 seconds** for a much more luxurious, slow-motion feel.
-
-### 2. Premium Easing Curve
-Add a custom cubic-bezier easing function that starts slow, accelerates slightly, then eases out - creating a more organic, premium motion:
-- Use `ease-out` or custom `cubic-bezier(0.25, 0.46, 0.45, 0.94)` for a refined feel
-
-### 3. Subtle Scale Amount
-The current 105% scale is good, but we can keep it at 105-110% for maximum cinematic impact without being distracting.
-
-### 4. Optional: Combine with Opacity
-Add a subtle opacity transition from 80% to 90% on hover to create a "fade inwards" brightening effect as you described.
-
-## Technical Implementation
-
-### File: `src/components/vpo/RunwaySection.tsx`
-
-**Line 58 changes:**
-
-Current:
-```jsx
-className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-[2s]"
+```text
+Time:     0s -------- 1s -------- 2s -------- 3s -------- 4s -------- 5s
+          |           |           |           |           |           |
+Zoom:     100% ------ 101% ------ 103% ------ 106% ------ 108% ------ 110%
+          ↑           ↑           ↑           ↑           ↑           ↑
+          Start       Slow        Building    Faster      Slowing     End
+          (barely     climb       momentum    now         down        (settled)
+          moving)
 ```
 
-Updated:
-```jsx
-className="w-full h-full object-cover opacity-80 group-hover:opacity-90 group-hover:scale-110 transition-all duration-[4s] ease-out"
+### Alternative: Add to Global CSS
+
+If you prefer keeping styles in CSS rather than inline, we can also add a custom utility class in `src/index.css`:
+
+```css
+.runway-zoom-premium {
+  transition: transform 5s cubic-bezier(0.05, 0.5, 0.3, 1), 
+              opacity 3s cubic-bezier(0.05, 0.5, 0.3, 1);
+  will-change: transform, opacity;
+}
 ```
 
-**Key changes:**
-- `duration-[2s]` → `duration-[4s]` - Doubles the animation time for a slower, more cinematic feel
-- `transition-transform` → `transition-all` - Enables both transform and opacity to animate
-- Added `group-hover:opacity-90` - Subtle brightening effect on hover (fade inwards)
-- `group-hover:scale-105` → `group-hover:scale-110` - Slightly larger zoom for more dramatic effect
-- Added `ease-out` - Premium easing that slows down naturally at the end
+Then apply it:
+```jsx
+className="... runway-zoom-premium group-hover:opacity-90 group-hover:scale-110"
+```
 
-## Expected Result
+## Summary
 
-When you hover over the runway image:
-1. The image will very slowly zoom in from 100% to 110% over 4 seconds
-2. Simultaneously, it will subtly brighten from 80% to 90% opacity
-3. The animation will feel cinematic and luxurious, matching high-fashion editorial standards
-4. When you move your mouse away, it will slowly reverse back to its original state
+| Aspect | Current | Premium Update |
+|--------|---------|----------------|
+| Duration | 4s | 5s (transform), 3s (opacity) |
+| Easing | ease-out (starts fast) | cubic-bezier(0.05, 0.5, 0.3, 1) (starts very slow) |
+| GPU Acceleration | None | will-change: transform, opacity |
+| Feel | Quick start, slow end | Slow build, luxurious motion |
+
+This creates that "fashion editorial" feel where the zoom seems to creep in almost imperceptibly at first, then gracefully settles into its final position.
 
