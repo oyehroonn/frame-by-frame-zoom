@@ -70,7 +70,7 @@ export function useScrollReveal<T extends HTMLElement>(
         trigger: element,
         start: "top 85%",
         end: "top 50%",
-        toggleActions: "play none none none",
+        toggleActions: "play none none reverse",
       },
     });
 
@@ -94,15 +94,12 @@ export function useScrollRevealRefs<T extends HTMLElement>(
 ) {
   const { type = "fade-up", delay = 0, duration = 0.8 } = options;
   const refs = useRef<(T | null)[]>([]);
-  const hasAnimated = useRef(false);
 
   const setRef = useCallback((index: number) => (el: T | null) => {
     refs.current[index] = el;
   }, []);
 
   useEffect(() => {
-    if (hasAnimated.current) return;
-    
     const elements = refs.current.filter(Boolean) as T[];
     if (elements.length === 0) return;
 
@@ -151,10 +148,7 @@ export function useScrollRevealRefs<T extends HTMLElement>(
       scrollTrigger: {
         trigger: elements[0],
         start: "top 85%",
-        toggleActions: "play none none none",
-        onEnter: () => {
-          hasAnimated.current = true;
-        }
+        toggleActions: "play none none reverse",
       },
     });
 
