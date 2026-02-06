@@ -1,199 +1,79 @@
 
+# Fix Current Selection Hover Image Behavior
 
-# Premium Typography & Effects Refinement Plan
+## Problems Identified
 
-## Analysis: Key Differences Found
+1. **Image persists when scrolling**: When you scroll past the section, the `onMouseLeave` event never fires because the mouse doesn't physically leave - the element scrolls away beneath it. The image stays stuck on screen.
 
-After thorough comparison of the reference HTML with our current implementation, here are the exact differences that need to be addressed:
+2. **Image disappears while hovering**: The current logic with `setTimeout` delays is causing race conditions where the image flickers or disappears unexpectedly.
 
----
+## Solution
 
-## 1. Districts Section - Brand List Typography
+### 1. Add Scroll Detection to Clear Image
 
-### Reference HTML (lines 207-219):
-```html
-<div class="flex items-center justify-between border-b border-stone-200 pb-2 cursor-pointer group">
-    <span class="text-xs font-medium">Comme des Garçons</span>
-    <i data-lucide="arrow-right" class="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity"></i>
-</div>
+Use a `useEffect` hook with a scroll listener that checks if the cursor is still within a brand row. When scrolling occurs:
+- Get all brand row elements using refs
+- Check if the current mouse position is still within any brand row's bounding rectangle
+- If not, clear the hovered brand state
+
+### 2. Simplify Hover Logic
+
+Remove the problematic `setTimeout` delays that cause flickering:
+- Set `hoveredBrand` and `isVisible` directly on mouse enter
+- Clear both states directly on mouse leave
+- Let CSS transitions handle the smooth animation
+
+### 3. Track Mouse Position Globally
+
+Store mouse position in a ref (not just state) so we can check it during scroll events without triggering re-renders.
+
+## Technical Implementation
+
+### File: `src/components/vpo/CurrentSelectionSection.tsx`
+
+**Changes:**
+
+1. Add `useRef` and `useEffect` imports
+2. Create a ref to track the section element
+3. Create a ref to store current mouse coordinates (for scroll checking)
+4. Add scroll event listener that:
+   - Gets the current cursor position
+   - Uses `document.elementFromPoint()` to check what element is under cursor
+   - If cursor is not over any brand row, clears the hover state
+5. Simplify `handleBrandHover` to remove race-condition-causing `setTimeout`:
+   - On enter: immediately set both `hoveredBrand` and `isVisible` to true
+   - On leave: immediately set `isVisible` to false, then clear `hoveredBrand` after animation
+6. Add cleanup for scroll listener on unmount
+
+```text
+Logic flow:
+┌─────────────────────────────────────────────────────────────┐
+│  Mouse enters brand row                                     │
+│  → Set hoveredBrand = brand.id                              │
+│  → Set isVisible = true                                     │
+│  → Image fades in (CSS transition handles animation)        │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│  Mouse leaves brand row (moves to another or empty space)   │
+│  → Set isVisible = false                                    │
+│  → Image fades out (CSS transition)                         │
+│  → After 500ms, clear hoveredBrand                          │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│  User scrolls (mouse stays still, elements move)            │
+│  → Scroll event fires                                       │
+│  → Check: is cursor still over a brand row?                 │
+│  → If YES: update hoveredBrand to that brand                │
+│  → If NO: clear states (image fades out)                    │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-### Current Implementation:
-- Uses `text-sm text-foreground/70` (14px, 70% opacity)
-- Uses `py-3` padding (larger vertical spacing)
-- Arrow icon uses `w-4 h-4` (16px)
+## Summary
 
-### Issues:
-| Property | Reference | Current |
-|----------|-----------|---------|
-| Font size | `text-xs` (12px) | `text-sm` (14px) |
-| Font weight | `font-medium` | normal (no weight specified) |
-| Text color | solid black | `foreground/70` (muted) |
-| Vertical padding | `pb-2` (8px) | `py-3` (12px top & bottom) |
-| Arrow size | `w-3 h-3` (12px) | `w-4 h-4` (16px) |
-
----
-
-## 2. Districts Section - Title Typography
-
-### Reference HTML (line 202):
-```html
-<h3 class="text-4xl serif mb-6">District 01: <br> <span class="italic text-stone-400">Neo-Tokyo</span></h3>
-```
-
-### Current Implementation:
-```tsx
-<h3 className="font-display text-2xl md:text-3xl text-foreground italic mb-4">
-```
-
-### Issues:
-| Property | Reference | Current |
-|----------|-----------|---------|
-| Font size | `text-4xl` (36px) | `text-2xl md:text-3xl` (24-30px) |
-| Title style | Only "Neo-Tokyo" is italic | Entire heading is italic |
-| Margin | `mb-6` | `mb-4` |
-
----
-
-## 3. Runway Section - Image Hover Effect
-
-### Reference HTML (line 124):
-```html
-<img src="..." class="... group-hover:scale-105 transition-transform duration-[2s]">
-```
-
-### Current Implementation:
-```tsx
-className="... group-hover:scale-105 transition-transform duration-[2s] ease-out"
-```
-
-### Issue:
-The duration is actually the same (2s), but the reference uses the default easing while we added `ease-out`. However, the user feels it's too fast. The reference scales to 105% in 2s - we should try a subtler, slower approach for a more premium feel.
-
----
-
-## 4. Runway Section - "Look 04" Title Typography
-
-### Reference HTML (line 115):
-```html
-<h3 class="text-2xl serif italic text-white mb-2">Look 04: Obsidian Veil</h3>
-<p class="text-xs text-stone-400 font-mono">Designed by Maison VPO</p>
-```
-
-### Current Implementation:
-```tsx
-<p className="font-display text-xl md:text-2xl text-foreground italic mb-1">
-<p className="text-xs tracking-[0.15em] uppercase text-foreground/50 font-sans">
-```
-
-### Issues:
-| Property | Reference | Current |
-|----------|-----------|---------|
-| Look title size | `text-2xl` fixed | `text-xl md:text-2xl` |
-| Look title margin | `mb-2` | `mb-1` |
-| Designer subtitle | `font-mono`, NOT uppercase | `font-sans`, uppercase with letter-spacing |
-
----
-
-## 5. Runway Section - Schedule Items
-
-### Reference HTML (lines 134-145):
-```html
-<div class="flex justify-between text-xs font-mono text-stone-500 mb-1">
-    <span>09:00 EST</span>
-    <span>Live</span>
-</div>
-<p class="text-sm font-light text-stone-300">The Black Coat Collection</p>
-```
-
-### Current Implementation:
-Uses separate styled status badges and different font styling.
-
----
-
-## 6. Journal Section - Article Titles
-
-### Reference HTML (line 369):
-```html
-<h3 class="text-xl serif italic mb-3 group-hover:underline decoration-1 underline-offset-4 decoration-stone-300">
-```
-
-### Current Implementation:
-```tsx
-<h3 className="font-display text-xl md:text-2xl text-light italic mb-3 group-hover:underline decoration-1 underline-offset-4 decoration-vpo-subtle/30">
-```
-
-### Issue:
-Size is similar but reference uses fixed `text-xl` (20px), not responsive sizing.
-
----
-
-## Implementation Plan
-
-### File: `src/components/vpo/DistrictsSection.tsx`
-
-1. **Brand list typography refinement:**
-   - Change `text-sm` to `text-xs`
-   - Add `font-medium`
-   - Remove opacity from text color
-   - Change `py-3` to `pb-2`
-   - Reduce arrow icon from `w-4 h-4` to `w-3 h-3`
-
-2. **District title refinement:**
-   - Increase size to `text-3xl md:text-4xl`
-   - Move italic only to "Neo-Tokyo" span
-   - Increase margin to `mb-6`
-
-### File: `src/components/vpo/RunwaySection.tsx`
-
-1. **Slow down image hover effect:**
-   - Change duration from `duration-[2s]` to `duration-[3s]`
-   - Use subtler scale: `scale-[1.03]` instead of `scale-105`
-
-2. **Designer credit typography:**
-   - Remove uppercase transformation
-   - Add `font-mono` class for monospace font
-   - Remove letter-spacing
-
-3. **Look title refinement:**
-   - Use consistent `text-2xl` size
-   - Change margin from `mb-1` to `mb-2`
-
-### File: `src/index.css`
-
-Add monospace font to the font stack:
-
-```css
-@import url('https://fonts.googleapis.com/css2?family=... &family=IBM+Plex+Mono:wght@300;400&display=swap');
-
---font-mono: 'IBM Plex Mono', monospace;
-```
-
-Add utility class:
-```css
-.font-mono {
-  font-family: var(--font-mono);
-}
-```
-
----
-
-## Summary of Changes
-
-| Component | Change | Impact |
-|-----------|--------|--------|
-| DistrictsSection | Brand names: smaller, bolder, tighter spacing | Matches reference's refined look |
-| DistrictsSection | District title: larger, split italic styling | Better visual hierarchy |
-| RunwaySection | Image zoom: 3s duration, subtler 1.03x scale | Premium, slow-motion effect |
-| RunwaySection | Designer credit: monospace, no uppercase | Matches editorial reference |
-| CSS | Add monospace font family | Enables font-mono utility |
-
----
-
-## Technical Notes
-
-- All changes are typography and timing tweaks - no structural changes
-- The monospace font adds subtle editorial authenticity
-- Slower animations create the "premium" feel the reference achieves
-- Smaller brand names create better visual balance with the map
-
+| Issue | Solution |
+|-------|----------|
+| Image stays when scrolling past section | Add scroll listener to detect when cursor leaves brand rows |
+| Image disappears while hovering | Remove setTimeout delays, use direct state updates |
+| Smooth animation | Keep CSS transitions, they handle the visual smoothness |
