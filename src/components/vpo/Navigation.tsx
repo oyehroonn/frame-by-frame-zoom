@@ -1,19 +1,7 @@
 import { Link } from "react-router-dom";
-import { useState, useEffect } from "react";
 
 const Navigation = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
   const navItems = [
-    { label: "Editorial", href: "/gallery", isRoute: true },
     { label: "Runway", href: "#runway", isRoute: false },
     { label: "Spaces", href: "#spaces", isRoute: false },
     { label: "Journal", href: "#journal", isRoute: false },
@@ -29,60 +17,35 @@ const Navigation = () => {
   };
 
   return (
-    <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 group border-b border-white/5 ${
-        isScrolled
-          ? "bg-black/80 backdrop-blur-md"
-          : "bg-transparent hover:bg-black/80 hover:backdrop-blur-md"
-      }`}
-    >
-      <div className="px-6 md:px-10 py-4 flex items-center justify-between">
-        {/* Logo */}
-        <div className="flex flex-col">
-          <span className="text-xl md:text-2xl font-serif font-semibold tracking-tight text-white">
+    <nav className="fixed top-0 left-0 right-0 z-50 mix-blend-difference text-white transition-all duration-500 group hover:bg-black/80 hover:backdrop-blur-md border-b border-white/5">
+      <div className="md:px-12 flex h-24 max-w-[1920px] mx-auto px-6 items-center justify-between">
+        {/* Brand */}
+        <div className="flex-1">
+          <Link to="/" className="text-2xl md:text-3xl font-serif italic tracking-tighter hover:opacity-70 transition-opacity">
             VPO.
-          </span>
-          <span className="text-[10px] tracking-[0.25em] text-white/50 mt-0.5 font-sans">
-            EST. 2024
-          </span>
+          </Link>
         </div>
 
-        {/* Center Nav */}
-        <div className="hidden md:flex items-center gap-8 lg:gap-10">
-          {navItems.map((item) =>
-            item.isRoute ? (
-              <Link
-                key={item.label}
-                to={item.href}
-                className="text-sm font-sans text-white/70 hover:text-white transition-colors tracking-wide"
-              >
-                {item.label}
-              </Link>
-            ) : (
-              <a
-                key={item.label}
-                href={item.href}
-                onClick={(e) => handleSmoothScroll(e, item.href)}
-                className="text-sm font-sans text-white/70 hover:text-white transition-colors tracking-wide"
-              >
-                {item.label}
-              </a>
-            )
-          )}
+        {/* Central Menu */}
+        <div className="hidden md:flex flex-1 justify-center gap-12 lg:gap-16">
+          {navItems.map((item) => (
+            <a
+              key={item.label}
+              href={item.href}
+              onClick={(e) => handleSmoothScroll(e, item.href)}
+              className="text-[10px] uppercase tracking-[0.2em] font-medium hover:text-stone-400 transition-colors"
+            >
+              {item.label}
+            </a>
+          ))}
         </div>
 
-        {/* Right Side */}
-        <div className="flex items-center gap-4">
-          <span className="hidden lg:inline text-[11px] tracking-[0.15em] text-white/40 font-sans">
+        {/* Actions */}
+        <div className="flex-1 flex justify-end items-center gap-6">
+          <span className="hidden lg:block text-[10px] text-stone-400 uppercase tracking-widest">
             v.0.9 Beta
           </span>
-          <div className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-            <span className="text-[11px] tracking-wide text-white/50 font-sans hidden sm:inline">
-              Secure
-            </span>
-          </div>
-          <button className="ml-2 px-4 py-2 border border-white/20 text-[11px] tracking-[0.15em] uppercase text-white/70 hover:bg-white hover:text-black transition-colors font-sans">
+          <button className="px-6 py-2 border border-white/30 text-[10px] uppercase tracking-[0.15em] hover:bg-white hover:text-black hover:border-white transition-all duration-300">
             Connect Wallet
           </button>
         </div>
