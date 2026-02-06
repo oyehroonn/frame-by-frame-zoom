@@ -166,19 +166,6 @@ const GLTFViewerR3F = ({
       <div className="absolute bottom-3 left-3 w-6 h-6 border-l border-b border-white/10 pointer-events-none z-10" />
       <div className="absolute bottom-3 right-3 w-6 h-6 border-r border-b border-white/10 pointer-events-none z-10" />
 
-      {/* Label - positioned bottom left to avoid overlap */}
-      <div className="absolute bottom-14 left-5 md:bottom-16 md:left-7 z-20 flex items-center gap-2">
-        <span className="font-sans text-[11px] tracking-[0.15em] text-white/70 uppercase font-medium">
-          {labelText}
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-[hsl(145_60%_40%)] animate-pulse" />
-          <span className="text-[9px] font-sans tracking-[0.2em] text-[hsl(145_60%_50%)] uppercase">
-            Interactive
-          </span>
-        </span>
-      </div>
-
       {/* Interaction hint - shows until first interaction */}
       {!hasInteracted && (
         <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-20 transition-opacity duration-1000 pointer-events-none">
@@ -212,13 +199,26 @@ const GLTFViewerR3F = ({
         </div>
       )}
 
-      {/* Bottom label */}
-      <div className="absolute bottom-5 left-1/2 -translate-x-1/2 text-center z-20">
+      {/* Bottom label - includes dynamic labelText and interactive indicator */}
+      <div className="absolute bottom-5 left-5 md:left-7 z-20 flex items-center gap-3">
+        <span className="font-sans text-[10px] tracking-[0.15em] text-white/60 uppercase font-medium">
+          {labelText}
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-[hsl(145_60%_40%)] animate-pulse" />
+          <span className="text-[9px] font-sans tracking-[0.2em] text-[hsl(145_60%_50%)] uppercase">
+            Interactive
+          </span>
+        </span>
+      </div>
+
+      {/* Bottom right VPO branding */}
+      <div className="absolute bottom-5 right-5 md:right-7 text-right z-20">
         <p 
           className="text-white/40 text-[10px] tracking-[0.4em] uppercase font-light"
           style={{ fontFamily: '"Instrument Sans", sans-serif' }}
         >
-          VPO / Private Showroom
+          VPO / Collection
         </p>
       </div>
 
