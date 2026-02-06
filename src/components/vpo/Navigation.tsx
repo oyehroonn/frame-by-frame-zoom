@@ -4,6 +4,7 @@ const Navigation = () => {
   const navItems = [
     { label: "Runway", href: "#runway", isRoute: false },
     { label: "Spaces", href: "#spaces", isRoute: false },
+    { label: "Editorial", href: "/gallery", isRoute: true },
     { label: "Journal", href: "#journal", isRoute: false },
     { label: "Access", href: "#account", isRoute: false },
   ];
@@ -27,16 +28,26 @@ const Navigation = () => {
         </div>
 
         {/* Central Menu */}
-        <div className="hidden md:flex flex-1 justify-center gap-12 lg:gap-16">
+        <div className="hidden md:flex flex-1 justify-center gap-8 lg:gap-12">
           {navItems.map((item) => (
-            <a
-              key={item.label}
-              href={item.href}
-              onClick={(e) => handleSmoothScroll(e, item.href)}
-              className="text-[10px] uppercase tracking-[0.2em] font-medium hover:text-stone-400 transition-colors"
-            >
-              {item.label}
-            </a>
+            item.isRoute ? (
+              <Link
+                key={item.label}
+                to={item.href}
+                className="text-[10px] uppercase tracking-[0.2em] font-medium hover:text-stone-400 transition-colors"
+              >
+                {item.label}
+              </Link>
+            ) : (
+              <a
+                key={item.label}
+                href={item.href}
+                onClick={(e) => handleSmoothScroll(e, item.href)}
+                className="text-[10px] uppercase tracking-[0.2em] font-medium hover:text-stone-400 transition-colors"
+              >
+                {item.label}
+              </a>
+            )
           ))}
         </div>
 
@@ -45,7 +56,7 @@ const Navigation = () => {
           <span className="hidden lg:block text-[10px] text-stone-400 uppercase tracking-widest">
             v.0.9 Beta
           </span>
-          <button className="px-6 py-2 border border-white/30 text-[10px] uppercase tracking-[0.15em] hover:bg-white hover:text-black hover:border-white transition-all duration-300">
+          <button className="px-4 py-1.5 border border-white/20 text-[9px] uppercase tracking-widest hover:bg-white hover:text-black hover:border-white transition-all duration-300">
             Connect Wallet
           </button>
         </div>
