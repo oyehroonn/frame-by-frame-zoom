@@ -290,7 +290,7 @@ const FrameSequence = () => {
       {/* Hero section with background image */}
       {!isLoading && images.length > 0 && (
         <section 
-          className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background"
+          className="relative z-10 min-h-screen flex items-center justify-center overflow-hidden bg-background"
         >
           <img 
             src={vpoHeroBg} 
@@ -299,6 +299,7 @@ const FrameSequence = () => {
             loading="eager"
             decoding="sync"
           />
+          
         </section>
       )}
     </div>

@@ -18,7 +18,7 @@ const Navigation = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 mix-blend-difference text-white transition-all duration-500 group hover:bg-black/80 hover:backdrop-blur-md border-b border-white/5">
+    <nav className="fixed top-0 left-0 right-0 z-50 text-white transition-all duration-500 group border-b border-white/5 bg-transparent hover:backdrop-blur-md">
       <div className="md:px-12 flex h-24 max-w-[1920px] mx-auto px-6 items-center justify-between">
         {/* Brand */}
         <div className="flex-1">
