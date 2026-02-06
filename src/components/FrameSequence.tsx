@@ -224,13 +224,16 @@ const FrameSequence = () => {
   if (viewMode === 'lite') {
     return (
       <section 
-        className="relative min-h-screen flex items-center justify-center overflow-hidden"
-        style={{
-          backgroundImage: `url(${vpoHeroBg})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
-      />
+        className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background"
+      >
+        <img 
+          src={vpoHeroBg} 
+          alt="" 
+          className="absolute inset-0 w-full h-full object-cover"
+          loading="eager"
+          decoding="sync"
+        />
+      </section>
     );
   }
 
@@ -271,7 +274,7 @@ const FrameSequence = () => {
           </div>
         ) : images.length === 0 ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-background">
-            <p className="font-mono text-lg text-red-500">No frames loaded</p>
+            <p className="font-mono text-lg text-destructive">No frames loaded</p>
             <p className="font-mono text-sm text-muted-foreground max-w-md text-center">
               Unable to load frames. Check console for details.
             </p>
@@ -287,13 +290,16 @@ const FrameSequence = () => {
       {/* Hero section with background image */}
       {!isLoading && images.length > 0 && (
         <section 
-          className="relative min-h-screen flex items-center justify-center overflow-hidden"
-          style={{
-            backgroundImage: `url(${vpoHeroBg})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        />
+          className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background"
+        >
+          <img 
+            src={vpoHeroBg} 
+            alt="" 
+            className="absolute inset-0 w-full h-full object-cover"
+            loading="eager"
+            decoding="sync"
+          />
+        </section>
       )}
     </div>
   );
