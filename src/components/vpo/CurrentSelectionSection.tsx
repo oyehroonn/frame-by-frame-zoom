@@ -136,7 +136,7 @@ const CurrentSelectionSection = () => {
   return (
     <section 
       ref={sectionRef}
-      className="bg-background grain-overlay py-24 px-8 md:px-16 relative overflow-hidden" 
+      className="relative z-10 bg-background grain-overlay py-24 px-8 md:px-16 overflow-hidden" 
       onMouseMove={handleMouseMove}
     >
       {/* Floating image on hover */}
