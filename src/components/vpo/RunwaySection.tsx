@@ -1,7 +1,11 @@
+import { useState } from "react";
 import { ShoppingBag } from "lucide-react";
 import ScrollReveal from "@/components/ScrollReveal";
+import LobbyModal from "./LobbyModal";
 
 const RunwaySection = () => {
+  const [isLobbyOpen, setIsLobbyOpen] = useState(false);
+
   const scheduleItems = [
     { time: "09:00 EST", status: "Live", label: "The Black Coat Collection" },
     { time: "12:00 EST", status: "Upcoming", label: "Accessories Vault" },
@@ -119,13 +123,17 @@ const RunwaySection = () => {
               <p className="text-xs text-stone-400 mb-4 leading-relaxed">
                 Create a lobby to watch the show together and shop the collection in real-time.
               </p>
-              <button className="w-full py-2 border border-white/20 text-[9px] uppercase tracking-widest hover:bg-white hover:text-black transition-colors">
+              <button
+                onClick={() => setIsLobbyOpen(true)}
+                className="w-full py-2 border border-white/20 text-[9px] uppercase tracking-widest hover:bg-white hover:text-black transition-colors"
+              >
                 Create Lobby
               </button>
             </div>
           </ScrollReveal>
         </div>
       </div>
+      <LobbyModal isOpen={isLobbyOpen} onClose={() => setIsLobbyOpen(false)} />
     </section>
   );
 };
