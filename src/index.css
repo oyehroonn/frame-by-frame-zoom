@@ -4,6 +4,12 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+
 @layer base {
   :root {
     /* Warm vintage black - slightly brownish undertone */

@@ -224,13 +224,16 @@ const FrameSequence = () => {
   if (viewMode === 'lite') {
     return (
       <section 
-        className="relative min-h-screen flex items-center justify-center overflow-hidden"
-        style={{
-          backgroundImage: `url(${vpoHeroBg})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
-      />
+        className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#050505]"
+      >
+        <img 
+          src={vpoHeroBg} 
+          alt="" 
+          className="absolute inset-0 w-full h-full object-cover"
+          loading="eager"
+          decoding="sync"
+        />
+      </section>
     );
   }
 
@@ -287,13 +290,16 @@ const FrameSequence = () => {
       {/* Hero section with background image */}
       {!isLoading && images.length > 0 && (
         <section 
-          className="relative min-h-screen flex items-center justify-center overflow-hidden"
-          style={{
-            backgroundImage: `url(${vpoHeroBg})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        />
+          className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#050505]"
+        >
+          <img 
+            src={vpoHeroBg} 
+            alt="" 
+            className="absolute inset-0 w-full h-full object-cover"
+            loading="eager"
+            decoding="sync"
+          />
+        </section>
       )}
     </div>
   );
