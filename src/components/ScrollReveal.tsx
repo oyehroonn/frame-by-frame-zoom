@@ -19,15 +19,24 @@ const ScrollReveal = ({
     const element = ref.current;
     if (!element) return;
 
+    let timeoutId: NodeJS.Timeout | null = null;
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            // Add delay if specified
-            setTimeout(() => {
+            // Add delay if specified when entering
+            timeoutId = setTimeout(() => {
               entry.target.classList.add("revealed");
             }, delay * 1000);
-            observer.unobserve(entry.target);
+          } else {
+            // Clear pending timeout if scrolling away quickly
+            if (timeoutId) {
+              clearTimeout(timeoutId);
+              timeoutId = null;
+            }
+            // Remove revealed class when exiting viewport
+            entry.target.classList.remove("revealed");
           }
         });
       },
@@ -40,6 +49,7 @@ const ScrollReveal = ({
     observer.observe(element);
 
     return () => {
+      if (timeoutId) clearTimeout(timeoutId);
       observer.disconnect();
     };
   }, [delay]);
